@@ -43,11 +43,12 @@ class Genius:
         for term in search_terms:
             try:
                 artist_data = self.get_artist(term)
+                artist_info = artist_data.get("response", {}).get("artist", {})
                 records.append({
                     "search_term": term,
-                    "artist_name": artist_data.get("name"),
-                    "artist_id": artist_data.get("id"),
-                    "followers_count": artist_data.get("followers_count")
+                    "artist_name": artist_info.get("name"),
+                    "artist_id": artist_info.get("id"),
+                    "followers_count": artist_info.get("followers_count")
                 })
             except Exception:
                 records.append({

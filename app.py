@@ -23,14 +23,18 @@ if st.button("Search"):
     if artist_name.strip():
         try:
             artist_data = genius.get_artist(artist_name)
-            st.success(f"Artist Found: {artist_data.get('name')}")
-            st.json(artist_data)
-        except ValueError as ve:
-            st.error(str(ve))
+            artist_info = artist_data.get("response", {}).get("artist", {})
+            artist_name_found = artist_info.get("name")
+
+            if artist_name_found:
+                st.success(f"Artist Found: {artist_name_found}")
+                st.json(artist_info)
+            else:
+                st.warning("Artist found, name not available.")
         except Exception as e:
-            st.error("An error occurred while fetching artist data.")
+            st.error(f"Error: {e}")
     else:
-        st.warning("Please enter an artist name.")
+        st.warning("Please enter a valid artist name.")
 
 st.subheader("Search for Multiple Artists")
 artist_names = st.text_area("Enter Artist Names (one per line): ", placeholder="Radiohead\nAdele\nDrake")
@@ -41,6 +45,4 @@ if st.button("Search Multiple"):
         st.dataframe(df)
     else:
         st.warning("Please enter at least one artist name.")
-        
-
-
+    

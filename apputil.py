@@ -3,33 +3,42 @@ import requests
 import pandas as pd
 
 class Genius:
+    """
+        A simple Genius API client for searching artists and retrieving their details.
+    """
+
     def __init__(self, access_token: str):
         self.access_token = access_token
         self.base_url = "https://api.genius.com"
         self.headers = {"Authorization": f"Bearer {self.access_token}"}
 
     def get_artist(self, search_term: str) -> dict:
+        """Search for an artist and return the full JSON response."""
+        # 1. Search for the artist
         search_url = f"{self.base_url}/search"
-        params = {"q": search_term}
-        response = requests.get(search_url, headers=self.headers, params=params)
+        response = requests.get(search_url, headers=self.headers, params={"q": search_term})
         response.raise_for_status()
-        search_json = response.json()
+        data = response.json()
 
-        hits = search_json.get("response", {}).get("hits", [])
+        # 2. Extract artist ID
+        hits = data.get("response", {}).get("hits", [])
         if not hits:
             raise ValueError(f"No results found for '{search_term}'")
 
-        primary_artist = hits[0]["result"]["primary_artist"]
-        artist_id = primary_artist["id"]
+        artist_id = hits[0]["result"]["primary_artist"]["id"]
 
+        # 3. Get artist details
         artist_url = f"{self.base_url}/artists/{artist_id}"
         artist_response = requests.get(artist_url, headers=self.headers)
         artist_response.raise_for_status()
-        artist_json = artist_response.json()
+        artist_data = artist_response.json()
 
-        return artist_json.get("response", {}).get("artist", {})
+        # 4. Return the WHOLE JSON, not just artist
+        return artist_data
+
 
     def get_artists(self, search_terms: list[str]) -> pd.DataFrame:
+        """Search for multiple artists and return a DataFrame with their details."""
         records = []
         for term in search_terms:
             try:

@@ -38,12 +38,15 @@ class Genius:
 
 
     def get_artists(self, search_terms: list[str]) -> pd.DataFrame:
-        """Search for multiple artists and return a DataFrame with their details."""
+        """
+        Search for multiple artists and return a DataFrame with their details.
+        """
         records = []
         for term in search_terms:
             try:
                 artist_data = self.get_artist(term)
                 artist_info = artist_data.get("response", {}).get("artist", {})
+
                 records.append({
                     "search_term": term,
                     "artist_name": artist_info.get("name"),
